@@ -17,8 +17,8 @@ namespace AuthUserApi.Controllers
             _context = context;
         }
 
-        [HttpGet("byId")]
-        public async Task<IActionResult> UserById()
+        [HttpGet("allUser")]
+        public async Task<IActionResult> AllUser()
         {
             var users = await _context.Users.ToListAsync();
             if (users is not null)
@@ -26,6 +26,18 @@ namespace AuthUserApi.Controllers
                 return StatusCode(200, new { message = "Sikeres lekérdezés!", result = users });
             }
             return StatusCode(400, new { message = "Sikertelen lekérdezés!", result = users });
+        }
+
+        [HttpGet("byId")]
+        public async Task<IActionResult> UserById([FromQuery] Guid id)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+
+            if (user is not null)
+            {
+                return StatusCode(200, new { message = "Sikeres lekérdezés!", result = user });
+            }
+            return StatusCode(404, new { message = "Sikertelen lekérdezés! Nincs találat.", result = user });
         }
 
         [HttpPost("newUser")]
