@@ -42,7 +42,7 @@ namespace AuthUserApi.Controllers
         }
 
         [HttpPost("newUser")]
-        public async Task<IActionResult> NewUser([FromBody]NewUserDTO newUserDTO)
+        public async Task<IActionResult> NewUser([FromBody] NewUserDTO newUserDTO)
         {
             var user = new User
             {
@@ -62,7 +62,7 @@ namespace AuthUserApi.Controllers
             return StatusCode(400, new { message = "Sikertelen felvétel!", result = user });
         }
 
-        [HttpPut("update")]
+        [HttpPut("updateUser")]
         public async Task<IActionResult> UpdateUser([FromQuery] Guid id, UpdateUserDTO updateUserDTO)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
@@ -77,6 +77,20 @@ namespace AuthUserApi.Controllers
                 return StatusCode(200, new { message = "Sikeres frissítés!", result = user });
             }
             return StatusCode(404, new { message = "Sikertelen frissítés!", result = user });
+        }
+
+        [HttpDelete("deleteUser")]
+        public async Task<IActionResult> DeleteUser([FromQuery] Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+
+            if (user is not null)
+            {
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+                return StatusCode(200, new { message = "Sikeres törlés!", result = user.Name });
+            }
+            return StatusCode(404, new { message = "Sikertelen törlés!", result = user });
         }
     }
 }

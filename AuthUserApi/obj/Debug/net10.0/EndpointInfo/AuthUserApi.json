@@ -79,7 +79,7 @@
         }
       }
     },
-    "/api/Users/update": {
+    "/api/Users/updateUser": {
       "put": {
         "tags": [
           "Users"
@@ -114,6 +114,28 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Users/deleteUser": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"

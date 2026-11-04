@@ -27,6 +27,22 @@
   },
   {
     "ContainingType": "AuthUserApi.Controllers.UsersController",
+    "Method": "DeleteUser",
+    "RelativePath": "api/Users/deleteUser",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthUserApi.Controllers.UsersController",
     "Method": "NewUser",
     "RelativePath": "api/Users/newUser",
     "HttpMethod": "POST",
@@ -44,7 +60,7 @@
   {
     "ContainingType": "AuthUserApi.Controllers.UsersController",
     "Method": "UpdateUser",
-    "RelativePath": "api/Users/update",
+    "RelativePath": "api/Users/updateUser",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
