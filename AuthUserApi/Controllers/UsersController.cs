@@ -3,6 +3,7 @@ using AuthUserApi.Models.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ZstdSharp.Unsafe;
 
 namespace AuthUserApi.Controllers
 {
@@ -59,6 +60,23 @@ namespace AuthUserApi.Controllers
                 return StatusCode(201, new { message = "Sikeres felvétel!", result = user });
             }
             return StatusCode(400, new { message = "Sikertelen felvétel!", result = user });
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateUser([FromQuery] Guid id, UpdateUserDTO updateUserDTO)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user is not null)
+            {
+                user.Name = updateUserDTO.Name;
+                user.Email = updateUserDTO.Email;
+                user.Password = updateUserDTO.Password;
+
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+                return StatusCode(200, new { message = "Sikeres frissítés!", result = user });
+            }
+            return StatusCode(404, new { message = "Sikertelen frissítés!", result = user });
         }
     }
 }

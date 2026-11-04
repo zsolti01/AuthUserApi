@@ -1,6 +1,32 @@
 [
   {
     "ContainingType": "AuthUserApi.Controllers.UsersController",
+    "Method": "AllUser",
+    "RelativePath": "api/Users/allUser",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthUserApi.Controllers.UsersController",
+    "Method": "UserById",
+    "RelativePath": "api/Users/byId",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthUserApi.Controllers.UsersController",
     "Method": "NewUser",
     "RelativePath": "api/Users/newUser",
     "HttpMethod": "POST",
@@ -10,6 +36,27 @@
       {
         "Name": "newUserDTO",
         "Type": "AuthUserApi.Models.DTOs.NewUserDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "AuthUserApi.Controllers.UsersController",
+    "Method": "UpdateUser",
+    "RelativePath": "api/Users/update",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Guid",
+        "IsRequired": false
+      },
+      {
+        "Name": "updateUserDTO",
+        "Type": "AuthUserApi.Models.DTOs.UpdateUserDTO",
         "IsRequired": true
       }
     ],
