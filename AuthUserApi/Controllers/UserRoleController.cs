@@ -26,9 +26,31 @@ namespace AuthUserApi.Controllers
                 var role = await _context.Roles.FindAsync(newUserRoleDTO.RoleId);
 
                 if (user is null || role is null) return NotFound(new { message = "Hibás UserId vagy RoleId!" });
+                bool isCreated = user.Roles.Any(r => r.Id == newUserRoleDTO.RoleId);
+                if (isCreated) return Conflict(new { message = "Ilyen szerepköre már van a Usernek" });
                 user.Roles.Add(role);
                 await _context.SaveChangesAsync();
                 return StatusCode(201, new { message = "Sikeres összerendelés!" });
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
+        }
+
+        [HttpDelete("deleteRole")]
+        public async Task<IActionResult> DeleteRole([FromBody] DeleteUserRoleDTO deleteUserRoleDTO)
+        {
+            try
+            {
+                var user = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == deleteUserRoleDTO.UserId);
+                var role = await _context.Roles.FindAsync(deleteUserRoleDTO.RoleId);
+                if (user is null || role is null) return NotFound(new { message = "Hibás UserId vagy RoleId!" });
+                bool isCreated = user.Roles.Any(r => r.Id == deleteUserRoleDTO.RoleId);
+                if (!isCreated) return Conflict(new { message = "Ilyen szerepkörrel már rendelkezik a User!" });
+                user.Roles.Remove(role);
+                await _context.SaveChangesAsync();
+                return StatusCode(200, new { message = "Sikeres törlés!" });
             }
             catch (Exception exception)
             {
