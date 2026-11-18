@@ -14,11 +14,13 @@ namespace AuthUserApi.Controllers
     {
         private readonly AuthuserContext _context;
         private readonly PasswordHasher _password;
+        private readonly GenerateToken _generateToken;
 
-        public UsersController(AuthuserContext context, PasswordHasher password)
+        public UsersController(AuthuserContext context, PasswordHasher password, GenerateToken generateToken)
         {
             _context = context;
             _password = password;
+            generateToken = generateToken;
         }
 
         [HttpGet("allUser")]
@@ -54,7 +56,8 @@ namespace AuthUserApi.Controllers
                 Name = newUserDTO.Name,
                 Email = newUserDTO.Email,
                 Password = pass,
-                Salt = salt
+                Salt = salt,
+                RegTime = DateTime.Now
             };
 
             if (user is not null)
@@ -103,7 +106,11 @@ namespace AuthUserApi.Controllers
             var login = await _context.Users.SingleOrDefaultAsync(u => u.Name == userLoginDTO.Name && u.Password == userLoginDTO.Password);
             if (login is null) return StatusCode(404, new { message = "Nincs találat", result = login });
             var isValid = _password.Verify(userLoginDTO.Password!, login.Password!, login.Salt!);
-            if (isValid) return StatusCode(200, new { message = "Sikeres bejelentkezés", result = login });
+            if (isValid)
+            {
+                var newToken = _generateToken.Token(login.Id, login.Email, login.Roles);
+                return StatusCode(200, new { message = "Sikeres bejelentkezés", token = newToken });
+            }
             return StatusCode(401, new { message = "Hibás név vagy jelszó", result = login });
         }
     }
