@@ -29,92 +29,134 @@ namespace AuthUserApi.Controllers
         [HttpGet("allUser")]
         public async Task<IActionResult> AllUser()
         {
-            var users = await _context.Users.ToListAsync();
-            if (users is not null)
+            try
             {
-                return StatusCode(200, new { message = "Sikeres lekérdezés!", result = users });
+                var users = await _context.Users.ToListAsync();
+                if (users is not null)
+                {
+                    return StatusCode(200, new { message = "Sikeres lekérdezés!", result = users });
+                }
+                return StatusCode(400, new { message = "Sikertelen lekérdezés!", result = users });
             }
-            return StatusCode(400, new { message = "Sikertelen lekérdezés!", result = users });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpGet("byId")]
         public async Task<IActionResult> UserById([FromQuery] Guid id)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
-
-            if (user is not null)
+            try
             {
-                return StatusCode(200, new { message = "Sikeres lekérdezés!", result = user });
+                var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+
+                if (user is not null)
+                {
+                    return StatusCode(200, new { message = "Sikeres lekérdezés!", result = user });
+                }
+                return StatusCode(404, new { message = "Sikertelen lekérdezés! Nincs találat.", result = user });
             }
-            return StatusCode(404, new { message = "Sikertelen lekérdezés! Nincs találat.", result = user });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpPost("newUser")]
         public async Task<IActionResult> NewUser([FromBody] NewUserDTO newUserDTO)
         {
-            var (pass, salt) = _password.HashPassword(newUserDTO.Password);
-            var user = new User
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = newUserDTO.Name,
-                Email = newUserDTO.Email,
-                Password = pass,
-                Salt = salt,
-                RegTime = DateTime.Now
-            };
+                var (pass, salt) = _password.HashPassword(newUserDTO.Password);
+                var user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Name = newUserDTO.Name,
+                    Email = newUserDTO.Email,
+                    Password = pass,
+                    Salt = salt,
+                    RegTime = DateTime.Now
+                };
 
-            if (user is not null)
-            {
-                await _context.Users.AddAsync(user);
-                await _context.SaveChangesAsync();
-                return StatusCode(201, new { message = "Sikeres felvétel!", result = user });
+                if (user is not null)
+                {
+                    await _context.Users.AddAsync(user);
+                    await _context.SaveChangesAsync();
+                    return StatusCode(201, new { message = "Sikeres felvétel!", result = user });
+                }
+                return StatusCode(400, new { message = "Sikertelen felvétel!", result = user });
             }
-            return StatusCode(400, new { message = "Sikertelen felvétel!", result = user });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpPut("updateUser")]
         public async Task<IActionResult> UpdateUser([FromQuery] Guid id, UpdateUserDTO updateUserDTO)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user is not null)
+            try
             {
-                user.Name = updateUserDTO.Name;
-                user.Email = updateUserDTO.Email;
-                user.Password = updateUserDTO.Password;
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+                if (user is not null)
+                {
+                    user.Name = updateUserDTO.Name;
+                    user.Email = updateUserDTO.Email;
+                    user.Password = updateUserDTO.Password;
 
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-                return StatusCode(200, new { message = "Sikeres frissítés!", result = user });
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+                    return StatusCode(200, new { message = "Sikeres frissítés!", result = user });
+                }
+                return StatusCode(404, new { message = "Sikertelen frissítés!", result = user });
             }
-            return StatusCode(404, new { message = "Sikertelen frissítés!", result = user });
+            catch (Exception exception
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpDelete("deleteUser")]
         public async Task<IActionResult> DeleteUser([FromQuery] Guid id)
         {
-            var user = await _context.Users.FindAsync(id);
-
-            if (user is not null)
+            try
             {
-                _context.Users.Remove(user);
-                await _context.SaveChangesAsync();
-                return StatusCode(200, new { message = "Sikeres törlés!", result = user.Name });
+                var user = await _context.Users.FindAsync(id);
+
+                if (user is not null)
+                {
+                    _context.Users.Remove(user);
+                    await _context.SaveChangesAsync();
+                    return StatusCode(200, new { message = "Sikeres törlés!", result = user.Name });
+                }
+                return StatusCode(404, new { message = "Sikertelen törlés!", result = user });
             }
-            return StatusCode(404, new { message = "Sikertelen törlés!", result = user });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDTO userLoginDTO)
         {
-            var login = await _context.Users.Include(u => u.Roles).SingleOrDefaultAsync(u => u.Name == userLoginDTO.Name && u.Password == userLoginDTO.Password);
-            if (login is null) return StatusCode(404, new { message = "Nincs találat", result = login });
-            var isValid = _password.Verify(userLoginDTO.Password!, login.Password!, login.Salt!);
-            if (isValid)
+            try
             {
-                var newToken = _generateToken.Token(login.Id, login.Email, login.Roles);
-                return StatusCode(200, new { message = "Sikeres bejelentkezés", token = newToken });
+                var login = await _context.Users.Include(u => u.Roles).SingleOrDefaultAsync(u => u.Name == userLoginDTO.Name && u.Password == userLoginDTO.Password);
+                if (login is null) return StatusCode(404, new { message = "Nincs találat", result = login });
+                var isValid = _password.Verify(userLoginDTO.Password!, login.Password!, login.Salt!);
+                if (isValid)
+                {
+                    var newToken = _generateToken.Token(login.Id, login.Email, login.Roles);
+                    return StatusCode(200, new { message = "Sikeres bejelentkezés", token = newToken });
+                }
+                return StatusCode(401, new { message = "Hibás név vagy jelszó", result = login });
             }
-            return StatusCode(401, new { message = "Hibás név vagy jelszó", result = login });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
     }
 }

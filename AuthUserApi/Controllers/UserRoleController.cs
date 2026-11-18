@@ -61,15 +61,29 @@ namespace AuthUserApi.Controllers
         [HttpGet("allUsersAllRoles")]
         public async Task<IActionResult> AllUsersAllRoles()
         {
-            var users = await _context.Users.Include(u => u.Roles).Select(u => new { Users = u.Name, UserRoles = u.Roles }).ToListAsync();
-            return Ok(users);
+            try
+            {
+                var users = await _context.Users.Include(u => u.Roles).Select(u => new { Users = u.Name, UserRoles = u.Roles }).ToListAsync();
+                return Ok(users);
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpGet("userByIdAndRoles")]
         public async Task<IActionResult> UserByIdAndRoles([FromQuery] Guid id)
         {
-            var user = await _context.Users.Select(u => new {u.Id, u.Name, UserRoles = u.Roles.Select(r => r.Name).ToList()}).SingleOrDefaultAsync(u => u.Id == id);
-            return Ok(user);
+            try
+            {
+                var user = await _context.Users.Select(u => new { u.Id, u.Name, UserRoles = u.Roles.Select(r => r.Name).ToList() }).SingleOrDefaultAsync(u => u.Id == id);
+                return Ok(user);
+            }
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
     }
 }

@@ -21,72 +21,107 @@ namespace AuthUserApi.Controllers
         [HttpGet("allRole")]
         public async Task<IActionResult> AllRole()
         {
-            var roles = await _context.Roles.ToListAsync();
-            if (roles is not null)
+            try
             {
-                return StatusCode(200, new { message = "Sikeres lekérdezés!", result = roles });
+                var roles = await _context.Roles.ToListAsync();
+                if (roles is not null)
+                {
+                    return StatusCode(200, new { message = "Sikeres lekérdezés!", result = roles });
+                }
+                return StatusCode(400, new { message = "Sikertelen lekérdezés!", result = roles });
             }
-            return StatusCode(400, new { message = "Sikertelen lekérdezés!", result = roles });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpGet("byId")]
         public async Task<IActionResult> RoleById([FromQuery] Guid id)
         {
-            var role = await _context.Roles.SingleOrDefaultAsync(u => u.Id == id);
-
-            if (role is not null)
+            try
             {
-                return StatusCode(200, new { message = "Sikeres lekérdezés!", result = role });
+                var role = await _context.Roles.SingleOrDefaultAsync(u => u.Id == id);
+
+                if (role is not null)
+                {
+                    return StatusCode(200, new { message = "Sikeres lekérdezés!", result = role });
+                }
+                return StatusCode(404, new { message = "Sikertelen lekérdezés! Nincs találat.", result = role });
             }
-            return StatusCode(404, new { message = "Sikertelen lekérdezés! Nincs találat.", result = role });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpPost("newRole")]
         public async Task<IActionResult> NewRole([FromBody] NewRoleDTO newRoleDTO)
         {
-            var role = new Role
+            try
             {
-                Id = Guid.NewGuid(),
-                Name = newRoleDTO.Name,
-                RegTime = DateTime.Now
-            };
+                var role = new Role
+                {
+                    Id = Guid.NewGuid(),
+                    Name = newRoleDTO.Name,
+                    RegTime = DateTime.Now
+                };
 
-            if (role is not null)
-            {
-                await _context.Roles.AddAsync(role);
-                await _context.SaveChangesAsync();
-                return StatusCode(201, new { message = "Sikeres felvétel!", result = role });
+                if (role is not null)
+                {
+                    await _context.Roles.AddAsync(role);
+                    await _context.SaveChangesAsync();
+                    return StatusCode(201, new { message = "Sikeres felvétel!", result = role });
+                }
+                return StatusCode(400, new { message = "Sikertelen felvétel!", result = role });
             }
-            return StatusCode(400, new { message = "Sikertelen felvétel!", result = role });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpPut("updateRole")]
         public async Task<IActionResult> UpdateRole([FromQuery] Guid id, UpdateRoleDTO updateRoleDTO)
         {
-            var role = await _context.Roles.FirstOrDefaultAsync(u => u.Id == id);
-            if (role is not null)
+            try
             {
-                role.Name = updateRoleDTO.Name;
+                var role = await _context.Roles.FirstOrDefaultAsync(u => u.Id == id);
+                if (role is not null)
+                {
+                    role.Name = updateRoleDTO.Name;
 
-                _context.Roles.Update(role);
-                await _context.SaveChangesAsync();
-                return StatusCode(200, new { message = "Sikeres frissítés!", result = role });
+                    _context.Roles.Update(role);
+                    await _context.SaveChangesAsync();
+                    return StatusCode(200, new { message = "Sikeres frissítés!", result = role });
+                }
+                return StatusCode(404, new { message = "Sikertelen frissítés!", result = role });
             }
-            return StatusCode(404, new { message = "Sikertelen frissítés!", result = role });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
 
         [HttpDelete("deleteRole")]
         public async Task<IActionResult> DeleteRole([FromQuery] Guid id)
         {
-            var role = await _context.Roles.FindAsync(id);
-
-            if (role is not null)
+            try
             {
-                _context.Roles.Remove(role);
-                await _context.SaveChangesAsync();
-                return StatusCode(200, new { message = "Sikeres törlés!", result = role.Name });
+                var role = await _context.Roles.FindAsync(id);
+
+                if (role is not null)
+                {
+                    _context.Roles.Remove(role);
+                    await _context.SaveChangesAsync();
+                    return StatusCode(200, new { message = "Sikeres törlés!", result = role.Name });
+                }
+                return StatusCode(404, new { message = "Sikertelen törlés!", result = role });
             }
-            return StatusCode(404, new { message = "Sikertelen törlés!", result = role });
+            catch (Exception exception)
+            {
+                return BadRequest(exception.Message);
+            }
         }
     }
 }
