@@ -1,6 +1,7 @@
 ﻿using AuthUserApi.Models;
 using AuthUserApi.Models.DTOs;
 using AuthUserApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ namespace AuthUserApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly AuthuserContext _context;
@@ -23,6 +25,7 @@ namespace AuthUserApi.Controllers
             generateToken = generateToken;
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet("allUser")]
         public async Task<IActionResult> AllUser()
         {
@@ -103,7 +106,7 @@ namespace AuthUserApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDTO userLoginDTO)
         {
-            var login = await _context.Users.SingleOrDefaultAsync(u => u.Name == userLoginDTO.Name && u.Password == userLoginDTO.Password);
+            var login = await _context.Users.Include(u => u.Roles).SingleOrDefaultAsync(u => u.Name == userLoginDTO.Name && u.Password == userLoginDTO.Password);
             if (login is null) return StatusCode(404, new { message = "Nincs találat", result = login });
             var isValid = _password.Verify(userLoginDTO.Password!, login.Password!, login.Salt!);
             if (isValid)
